@@ -5,9 +5,12 @@
 package it.polito.tdp.poweroutages;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.PowerOutages;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -39,6 +42,32 @@ public class FXMLController {
     @FXML
     void doRun(ActionEvent event) {
     	txtResult.clear();
+    	
+    	Nerc n = this.cmbNerc.getValue();
+    	
+    	int anniMax;
+    	String a = this.txtYears.getText();
+    	int oreMax;
+    	String o = this.txtHours.getText();
+    	
+    	try {
+    		anniMax = Integer.parseInt(a);
+    		oreMax = Integer.parseInt(o);
+    		
+    		List<PowerOutages> worstCase = new ArrayList<PowerOutages>(this.model.trovaWorstCase(n, anniMax, oreMax));
+    		
+    		this.txtResult.appendText("Tot people affected: "+this.model.getWorstPers() + "\n");
+    		this.txtResult.appendText("Tot hours of outage: "+this.model.getOre() + "\n");
+    		
+    		for(PowerOutages po : worstCase) {
+    			this.txtResult.appendText(po.toString() + "\n");
+    		}
+    		
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		this.txtResult.appendText("Inserire un intervallo valido di anni o ore massimi");
+    	}
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -54,5 +83,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbNerc.getItems().addAll(this.model.getNercList());
     }
 }
